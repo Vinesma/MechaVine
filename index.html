@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Bot Tester</title>
+</head>
+<body>
+    
+    <script>
+        function getLatestVideo() {
+        fetch(`https://www.googleapis.com/youtube/v3/activities?part=contentDetails&channelId=UCQBs359lwzyVFtc22LzLjuw&maxResults=5&key=AIzaSyCw8dMDwBdzjpBIg4Y0TGei3q6NIksoXYo`)
+        .then((res) => res.json())
+        .then((data) => {
+            data.items.forEach(video => {
+                console.log(`https://www.youtube.com/watch?v=${video.contentDetails.upload.videoId}`);
+            });           
+        });
+    }    
+    </script>
+
+    <button onclick="getLatestVideo()">Fetch</button>
+</body>
+</html>
