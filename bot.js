@@ -49,6 +49,13 @@ bot.on('message', (user, userID, channelID, message, evt) =>{
                 case 'youtube':
                     getLatestVideos(channelID);              
                 break;
+                case 'random':
+                    num = getRandomInt(0, 100);
+                    bot.sendMessage({
+                        to: channelID,
+                        message: `${num}`
+                    });                    
+                break;
                 case 'off':
                     bot.disconnect();              
                 break;
@@ -74,4 +81,10 @@ function getLatestVideos(channelID) {
         });
     })
     .catch((err) => bot.sendMessage({to: channelID, message: `Error: ${err}`}));
+}
+
+function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min)) + min;
 }
