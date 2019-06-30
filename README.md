@@ -1,3 +1,5 @@
+<img height="200" width="200" src="https://github.com/Vinesma/MechaVine/blob/master/mechavine.png">
+
 # MechaVine
 Personal bot made for funsies (and learning ofc).
 
