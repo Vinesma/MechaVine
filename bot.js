@@ -42,6 +42,9 @@ bot.on('message', function (user, userID, channelID, message, evt) {
             case 'youtube':
                 getLatestVideos(channelID);              
             break;
+            case 'off':
+                bot.disconnect();              
+            break;
             // Just add any case commands if you want to..
          }
      }
