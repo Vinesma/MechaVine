@@ -1,6 +1,6 @@
-let Discord = require('discord.io');
-let logger = require('winston');
-let auth = require('./auth.json');
+const Discord = require('discord.io');
+const logger = require('winston');
+const auth = require('./auth.json');
 const fetch = require("node-fetch");
 const ytLinkStart = "https://www.youtube.com/watch?v=";
 
@@ -40,21 +40,25 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                 });
             break;
             case 'youtube':
-                getLatestVideo();              
+                getLatestVideos(channelID);              
             break;
             // Just add any case commands if you want to..
          }
      }
 });
 
-function getLatestVideo() {
-    fetch(`https://www.googleapis.com/youtube/v3/activities?part=contentDetails&channelId=UCQBs359lwzyVFtc22LzLjuw&maxResults=1&key=AIzaSyCw8dMDwBdzjpBIg4Y0TGei3q6NIksoXYo`)
+function getLatestVideos(channelID, nReq) {
+    // nReq > 10 ? nReq = 10 : nReq;
+    nReq = 1;
+
+    fetch(`https://www.googleapis.com/youtube/v3/activities?part=snippet%2CcontentDetails&channelId=UCQBs359lwzyVFtc22LzLjuw&maxResults=${nReq}&key=${auth.ytAPIToken}`)
     .then((res) => res.json())
     .then((data) => {
         data.items.forEach(video => {
             bot.sendMessage({
                 to: channelID,
-                message: `${ytLinkStart}${video.contentDetails.upload.videoId}`
+                message: `**${video.snippet.title}**
+                ${ytLinkStart}${video.contentDetails.upload.videoId}`
             });
         });
     })
