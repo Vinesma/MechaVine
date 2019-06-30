@@ -21,9 +21,15 @@ bot.on('ready', function (evt) {
     logger.info('Connected');
     logger.info('Logged in as: ');
     logger.info(bot.username + ' - (' + bot.id + ')');
+
+    bot.setPresence({
+        game: {
+            name: "Testing!"
+        }
+    });
 });
 
-bot.on('message', function (user, userID, channelID, message, evt) {
+bot.on('message', (user, userID, channelID, message, evt) =>{
     // Our bot needs to know if it will execute a command
     // It will listen for messages that will start with `!`
     if (message.substring(0, 1) == '!') {
