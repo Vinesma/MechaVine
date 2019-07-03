@@ -21,7 +21,7 @@ let bot = new Discord.Client({
 bot.on('ready', function (evt) {
     logger.info('Connected');
     logger.info('Logged in as: ');
-    logger.info(bot.username + ' - (' + bot.id + ')');
+    logger.info(bot.username + ' - (' + bot.id + ')');    
 
     bot.setPresence({
         game: {
@@ -31,39 +31,36 @@ bot.on('ready', function (evt) {
 });
 
 bot.on('message', (user, userID, channelID, message, evt) =>{
-    // Our bot needs to know if it will execute a command
-    // It will listen for messages that will start with `!`
-    if (userID !== bot.id) {
-        if (message.substring(0, 1) == '!') {
-            let args = message.substring(1).split(' ');
-            let cmd = args[0];
+    if (userID === bot.id) return;
+    
+    if (message.substring(0, 1) == '!') {
+        let args = message.substring(1).split(' ');
+        let cmd = args[0];
            
-            args = args.splice(1);
-            switch(cmd.toLowerCase()) {
-                // !ping
-                case 'ping':
-                    bot.sendMessage({
-                        to: channelID,
-                        message: 'Pong!'
-                    });
-                break;
-                case 'youtube':
-                    getLatestVideos(channelID);              
-                break;
-                case 'random':
-                    num = getRandomInt(0, 100);
-                    bot.sendMessage({
-                        to: channelID,
-                        message: `${num}`
-                    });                    
-                break;
-                case 'off':
-                    bot.disconnect();              
-                break;
-                // Just add any case commands if you want to..
-             }
-        }    
-    }  
+        args = args.splice(1);
+        switch(cmd.toLowerCase()) {
+            case 'ping':
+                bot.sendMessage({
+                    to: channelID,
+                    message: 'Pong!'
+                });                
+            break;
+            case 'youtube':
+                getLatestVideos(channelID);              
+            break;
+            case 'random':
+                num = getRandomInt(0, 100);
+                bot.sendMessage({
+                    to: channelID,
+                    message: `${num}`
+                });                    
+            break;
+            case 'off':
+                // bot.sendMessage({to: channelID, message: `Going to sleep...`}); 
+                bot.disconnect();
+            break;
+        }
+    } 
 });
 
 function ytVideo(id, title){
@@ -76,22 +73,35 @@ function getLatestVideos(channelID) {
     nReq = 3;
     videoList = [];
 
+    fs.readFile('./storage/videoList.json', (err, jsonData) => {
+        if (!err){
+            try{
+                oldVideoList = JSON.parse(jsonData);
+                logger.info(oldVideoList); 
+            }catch (error){
+                logger.error(`Error parsing: ${error}`);
+            }                     
+        }else {
+            logger.error(`Error reading data: ${err}`);
+        }
+    });
+
     fetch(`https://www.googleapis.com/youtube/v3/activities?part=snippet%2CcontentDetails&channelId=UCQBs359lwzyVFtc22LzLjuw&maxResults=${nReq}&key=${auth.ytAPIToken}`)
-    .then((res) => res.json())
-    .then((data) => {
-        data.items.forEach(video => {
-            bot.sendMessage({
-                to: channelID,
-                message: `**${video.snippet.title}**
-                ${ytLinkStart}${video.contentDetails.upload.videoId}`
+        .then((res) => res.json())
+        .then((data) => {
+            data.items.forEach(video => {
+                bot.sendMessage({
+                    to: channelID,
+                    message: `**${video.snippet.title}**
+                    ${ytLinkStart}${video.contentDetails.upload.videoId}`
+                });
+                videoList.push(new ytVideo(video.contentDetails.upload.videoId, video.snippet.title));
             });
-            videoList.push(new ytVideo(video.contentDetails.upload.videoId, video.snippet.title));
-        });
-        fs.writeFile('./storage/videoList.json', JSON.stringify(videoList), err => {
-            bot.sendMessage({to: channelID, message: `File error: ${err}`});
-        });
-    })
-    .catch((err) => bot.sendMessage({to: channelID, message: `Error: ${err}`}));
+            fs.writeFile('./storage/videoList.json', JSON.stringify(videoList), err => {
+                logger.error(`(possibly harmless) Error: ${err}`);
+            });
+        })
+        .catch((err) => bot.sendMessage({to: channelID, message: `Error: ${err}`}));
 }
 
 function getRandomInt(min, max) {
