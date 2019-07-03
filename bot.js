@@ -2,6 +2,7 @@ const Discord = require('discord.io');
 const logger = require('winston');
 const auth = require('./auth.json');
 const fetch = require("node-fetch");
+const fs = require('fs');
 const ytLinkStart = "https://www.youtube.com/watch?v=";
 
 // Configure logger settings
@@ -65,9 +66,15 @@ bot.on('message', (user, userID, channelID, message, evt) =>{
     }  
 });
 
+function ytVideo(id, title){
+    this.id = id;
+    this.title = title;
+}
+
 function getLatestVideos(channelID) {
     // nReq > 10 ? nReq = 10 : nReq;
     nReq = 3;
+    videoList = [];
 
     fetch(`https://www.googleapis.com/youtube/v3/activities?part=snippet%2CcontentDetails&channelId=UCQBs359lwzyVFtc22LzLjuw&maxResults=${nReq}&key=${auth.ytAPIToken}`)
     .then((res) => res.json())
@@ -78,6 +85,10 @@ function getLatestVideos(channelID) {
                 message: `**${video.snippet.title}**
                 ${ytLinkStart}${video.contentDetails.upload.videoId}`
             });
+            videoList.push(new ytVideo(video.contentDetails.upload.videoId, video.snippet.title));
+        });
+        fs.writeFile('./storage/videoList.json', JSON.stringify(videoList), err => {
+            bot.sendMessage({to: channelID, message: `File error: ${err}`});
         });
     })
     .catch((err) => bot.sendMessage({to: channelID, message: `Error: ${err}`}));
