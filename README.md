@@ -11,4 +11,6 @@ Personal bot made for fun (and also learning).
 ## Links
 [The tutorial that helped in the making of this bot.](https://www.digitaltrends.com/gaming/how-to-make-a-discord-bot/)
 
+[Reading/Writing to JSON files (very helpful)](https://medium.com/@osiolabs/read-write-json-files-with-node-js-92d03cc82824)
+
 [DiscordIo Docs.](https://izy521.gitbooks.io/discord-io/content/)
