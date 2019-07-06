@@ -40,23 +40,16 @@ bot.on('message', (user, userID, channelID, message, evt) =>{
         args = args.splice(1);
         switch(cmd.toLowerCase()) {
             case 'ping':
-                bot.sendMessage({
-                    to: channelID,
-                    message: 'Pong!'
-                });                
+                sndMsg(channelID, 'Pong!');                               
             break;
             case 'youtube':
                 getLatestVideos(channelID);              
             break;
             case 'random':
-                num = getRandomInt(0, 100);
-                bot.sendMessage({
-                    to: channelID,
-                    message: `${num}`
-                });                    
+                sndMsg(channelID, `${getRandomInt(0, 100)}`);
             break;
             case 'off':
-                // bot.sendMessage({to: channelID, message: `Going to sleep...`}); 
+                // sndMsg(channelID, `Going to sleep...`);
                 bot.disconnect();
             break;
         }
@@ -90,22 +83,26 @@ function getLatestVideos(channelID) {
         .then((res) => res.json())
         .then((data) => {
             data.items.forEach(video => {
-                bot.sendMessage({
-                    to: channelID,
-                    message: `**${video.snippet.title}**
-                    ${ytLinkStart}${video.contentDetails.upload.videoId}`
-                });
+                sndMsg(channelID, `**${video.snippet.title}**
+                ${ytLinkStart}${video.contentDetails.upload.videoId}`);                
                 videoList.push(new ytVideo(video.contentDetails.upload.videoId, video.snippet.title));
             });
             fs.writeFile('./storage/videoList.json', JSON.stringify(videoList), err => {
                 logger.error(`(possibly harmless) Error: ${err}`);
             });
         })
-        .catch((err) => bot.sendMessage({to: channelID, message: `Error: ${err}`}));
+        .catch((err) => sndMsg(channelID, `Error: ${err}`));
 }
 
 function getRandomInt(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function sndMsg(ch, msg){
+    bot.sendMessage({
+        to: ch,
+        message: msg
+    });
 }
