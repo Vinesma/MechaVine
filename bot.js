@@ -4,6 +4,7 @@ const auth = require('./auth.json');
 const fetch = require("node-fetch");
 const fs = require('fs');
 const ytLinkStart = "https://www.youtube.com/watch?v=";
+let commList = [];
 
 // Configure logger settings
 logger.remove(logger.transports.Console);
@@ -21,7 +22,9 @@ let bot = new Discord.Client({
 bot.on('ready', function (evt) {
     logger.info('Connected');
     logger.info('Logged in as: ');
-    logger.info(bot.username + ' - (' + bot.id + ')');    
+    logger.info(bot.username + ' - (' + bot.id + ')');
+
+    buildCommList();
 
     bot.setPresence({
         game: {
@@ -40,13 +43,20 @@ bot.on('message', (user, userID, channelID, message, evt) =>{
         args = args.splice(1);
         switch(cmd.toLowerCase()) {
             case 'ping':
-                sndMsg(channelID, 'Pong!');                               
+                sndMsg(channelID, 'Pong!');                
             break;
             case 'youtube':
                 getLatestVideos(channelID);              
             break;
             case 'random':
                 sndMsg(channelID, `${getRandomInt(0, 100)}`);
+            break;
+            case 'help':
+                let msg = '';
+                commList.forEach(item => {
+                    msg += item + '\n';
+                });
+                sndMsg(channelID, msg);
             break;
             case 'off':
                 // sndMsg(channelID, `Going to sleep...`);
@@ -105,4 +115,13 @@ function sndMsg(ch, msg){
         to: ch,
         message: msg
     });
+}
+
+function buildCommList(){
+    commList.push('**COMMAND LIST**');
+    commList.push('!ping : Returns "Pong!", play with the bot!');
+    commList.push('!youtube : Returns 3 of the latest yogsLive videos.');
+    commList.push('!random : Returns a random number between 0 and 100.');
+    commList.push('!help : Returns this help message.');
+    commList.push('!off : Turns off the bot.');
 }
