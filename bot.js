@@ -3,8 +3,13 @@ const logger = require('winston');
 const auth = require('./auth.json');
 const fetch = require("node-fetch");
 const fs = require('fs');
-const ytLinkStart = "https://www.youtube.com/watch?v=";
 let commList = [];
+
+const ytLinkStart = "https://www.youtube.com/watch?v=";
+function ytVideo(id, title){
+    this.id = id;
+    this.title = title;    
+}
 
 // Configure logger settings
 logger.remove(logger.transports.Console);
@@ -66,21 +71,15 @@ bot.on('message', (user, userID, channelID, message, evt) =>{
     } 
 });
 
-function ytVideo(id, title){
-    this.id = id;
-    this.title = title;
-}
-
 function getLatestVideos(channelID) {
-    // nReq > 10 ? nReq = 10 : nReq;
     nReq = 3;
     videoList = [];
+    oldVideoList = [];
 
     fs.readFile('./storage/videoList.json', (err, jsonData) => {
         if (!err){
             try{
                 oldVideoList = JSON.parse(jsonData);
-                logger.info(oldVideoList); 
             }catch (error){
                 logger.error(`Error parsing: ${error}`);
             }                     
@@ -93,13 +92,18 @@ function getLatestVideos(channelID) {
         .then((res) => res.json())
         .then((data) => {
             data.items.forEach(video => {
-                sndMsg(channelID, `**${video.snippet.title}**
-                ${ytLinkStart}${video.contentDetails.upload.videoId}`);                
                 videoList.push(new ytVideo(video.contentDetails.upload.videoId, video.snippet.title));
-            });
-            fs.writeFile('./storage/videoList.json', JSON.stringify(videoList), err => {
-                logger.error(`(possibly harmless) Error: ${err}`);
-            });
+            });            
+            if(/* isEqual(videoList, oldVideoList) */ false) {
+                sndMsg(channelID, 'Not enough new videos available, try again later.');
+            } else {
+                videoList.forEach((video) => {
+                    sndMsg(channelID, `${video.title}\n${ytLinkStart}${video.id}`);
+                });
+                fs.writeFile('./storage/videoList.json', JSON.stringify(videoList), err => {
+                    logger.error(`Error: ${err}`);
+                });
+            }
         })
         .catch((err) => sndMsg(channelID, `Error: ${err}`));
 }
@@ -115,6 +119,25 @@ function sndMsg(ch, msg){
         to: ch,
         message: msg
     });
+}
+
+function isEqual(obj1, obj2){
+    /* if(obj1.length == 0 || obj2.length == 0){
+        return false;
+    }
+
+    let a1 = [];
+    let a2 = [];    
+
+    obj1.forEach((video) => {
+        a1.push(video.id);
+    })
+
+    obj2.forEach((video) => {
+        a2.push(video.id);
+    })
+
+    return check; */ //WIP
 }
 
 function buildCommList(){
