@@ -1,0 +1,3 @@
+regex for bot commands
+
+![a-zA-Z]+:?\d*
