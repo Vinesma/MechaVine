@@ -51,7 +51,7 @@ bot.on('message', (user, userID, channelID, message, evt) =>{
                 sndMsg(channelID, 'Pong!');                
             break;
             case 'youtube':
-                getLatestVideos(channelID);              
+                getLatestVideos(channelID);
             break;
             case 'random':
                 sndMsg(channelID, `${getRandomInt(0, 100)}`);
@@ -72,7 +72,7 @@ bot.on('message', (user, userID, channelID, message, evt) =>{
 });
 
 function getLatestVideos(channelID) {
-    nReq = 3;
+    nReq = 3; //How many videos to return?
     videoList = [];
     oldVideoList = [];
 
@@ -94,7 +94,7 @@ function getLatestVideos(channelID) {
             data.items.forEach(video => {
                 videoList.push(new ytVideo(video.contentDetails.upload.videoId, video.snippet.title));
             });            
-            if(/* isEqual(videoList, oldVideoList) */ false) {
+            if(isEqual(videoList, oldVideoList)) {
                 sndMsg(channelID, 'Not enough new videos available, try again later.');
             } else {
                 videoList.forEach((video) => {
@@ -122,22 +122,34 @@ function sndMsg(ch, msg){
 }
 
 function isEqual(obj1, obj2){
-    /* if(obj1.length == 0 || obj2.length == 0){
-        return false;
-    }
+    let check = false;
+
+    if(obj1.length == 0 || obj2.length == 0) return check;
 
     let a1 = [];
-    let a2 = [];    
-
+    let a2 = [];
+    
     obj1.forEach((video) => {
         a1.push(video.id);
-    })
+    });
+    // logger.info(a1);
 
     obj2.forEach((video) => {
         a2.push(video.id);
-    })
+    });
+    // logger.info(a2);
 
-    return check; */ //WIP
+    for (let i = 0; i < a1.length; i++) {
+        for (let j = 0; j < a2.length; j++) {
+            if (a1[i] == a2[j]) {
+                check = true;
+                j = a2.length;
+                i = a1.length;
+            }
+        }
+    }
+
+    return check;
 }
 
 function buildCommList(){
