@@ -1,9 +1,11 @@
 const Discord = require('discord.io');
 const logger = require('winston');
-const auth = require('./auth.json');
 const fetch = require("node-fetch");
 const fs = require('fs');
 let commList = [];
+
+const authToken = process.env.token;
+const ytToken = process.env.ytAPIToken;
 
 const ytLinkStart = "https://www.youtube.com/watch?v=";
 function ytVideo(id, title){
@@ -20,7 +22,7 @@ logger.level = 'debug';
 
 // Initialize Discord Bot
 let bot = new Discord.Client({
-   token: auth.token,
+   token: authToken,
    autorun: true
 });
 
@@ -88,7 +90,7 @@ function getLatestVideos(channelID) {
         }
     });
 
-    fetch(`https://www.googleapis.com/youtube/v3/activities?part=snippet%2CcontentDetails&channelId=UCQBs359lwzyVFtc22LzLjuw&maxResults=${nReq}&key=${auth.ytAPIToken}`)
+    fetch(`https://www.googleapis.com/youtube/v3/activities?part=snippet%2CcontentDetails&channelId=UCQBs359lwzyVFtc22LzLjuw&maxResults=${nReq}&key=${ytToken}`)
         .then((res) => res.json())
         .then((data) => {
             data.items.forEach(video => {
