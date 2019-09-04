@@ -4,6 +4,9 @@
     "description": "My First Discord Bot",
     "main": "bot.js",
     "author": "Vinesma",
+    "scripts": {
+        "start": "node bot"
+    },
     "dependencies": {
         "discord.io": "https://github.com/woor/discord.io/tarball/gateway_v6",
         "googleapis": "^40.0.0",
